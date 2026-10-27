@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+<!-- {% block title %}Authentication Inspector · Study entry{% endblock %} -->
+{% block content %}
+<main id="main" class="home">
+  <!-- <div class="eyebrow">AUTHENTICATION STUDY</div> -->
+  <h1>Genuine or Counterfeit?</h1>
+  <p class="home-intro">In each trial, you will see {{ n }}  product photos from five different brands (Adidas, Gucci, Louis Vuitton, Nike, Puma), decide whether they are genuine or counterfeit and rate your confidence.</p>
+  <p class="home-intro">Counterfeits can mislead shoppers, so we study whether people can make better authenticity judgments with AI than either can alone.</p>
+  <!-- <div class="home-facts"><span>{{ n }} images/trial</span><span>About 6–8 minutes/trial</span></div> -->
+  <div class="participant-reminder"><strong>Use the same participant ID or nickname in with/without AI conditions.</strong><p>This lets us compare your responses.</p></div>
+  <div class="entry-grid">
+    <a href="/without-ai" class="entry-card condition-baseline"><div class="card-index">Part 1 </div><h2>Without AI</h2><p>Inspect each product photo, choose your answer and confidence, then submit to move directly to the next photo.</p><strong>Enter the baseline study <span aria-hidden="true">↗</span></strong></a>
+    <a href="/with-ai" class="entry-card condition-ai"><div class="card-index">Part 2 </div><h2>With AI</h2><p>Make an independent judgment first, consider a prediction, confidence score, and visual heatmap from AI, then keep/change your answer.</p><strong>Enter the AI-assisted study <span aria-hidden="true">↗</span></strong></a>
+  </div>
+  </main>
+{% endblock %}

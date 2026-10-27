@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#183d3c">
+  <title>{% block title %}Authentication Inspector{% endblock %}</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  {% block scripts %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+<a href="#main" class="skip-link">Skip to content</a>
+{% if local %}<div class="practice-bar">LOCAL PRACTICE <span>Responses are saved on this computer, separate from your Supabase study.</span></div>{% endif %}
+<header class="topbar">
+  <a class="brand" href="/" aria-label="Authentication Inspector home"><span class="brand-mark" aria-hidden="true">AI<span>•</span></span><span>Authentication Inspector</span></a>
+  {% block condition_banner %}{% endblock %}
+  <nav aria-label="Main navigation">{% block nav %}<span class="header-note">CSE 594 Assignment 3</span>{% endblock %}</nav>
+</header>
+{% block content %}{% endblock %}
+<!-- <footer class="footer"><span>A study of visual judgment &amp; AI assistance.</span><span>University of Michigan · CSE 594</span></footer> -->
+</body>
+</html>

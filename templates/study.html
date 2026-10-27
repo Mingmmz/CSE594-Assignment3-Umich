@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'With AI' if condition == 'ai' else 'Without AI' }} · Product Inspector{% endblock %}
+{% block body_class %}study-condition condition-{{ condition }}{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='app.js') }}" defer></script>{% endblock %}
+{% block nav %}<button id="instructions-button" class="nav-button">Instructions <span aria-hidden="true">↗</span></button>{% endblock %}
+{% block condition_banner %}
+<div class="header-condition" role="group" aria-label="Current study condition">
+  <p class="header-condition-title">{{ 'WITH AI' if condition == 'ai' else 'WITHOUT AI' }}</p>
+  <!-- <p class="header-condition-description">{% if condition == 'ai' %}Your judgment + AI advice<span>AI advice appears after your independent answer.</span>{% else %}Make your decisions using the photo alone.</span>{% endif %}</p> -->
+</div>
+{% endblock %}
+{% block content %}
+<main id="main" class="workspace" data-condition="{{ condition }}" data-total="{{ n }}">
+  <div id="global-error" class="notice error" role="alert" hidden></div>
+  <section id="welcome" class="welcome-flow" aria-label="Study instructions and participant entry">
+    <section class="intro-copy onboarding-instructions" aria-labelledby="task-title">
+      <div class="eyebrow">STEP 1: READ THE INSTRUCTIONS</div>
+      <h1 id="task-title">Genuine or Counterfeit?</h1>
+      <p class="task-summary">In each trial, you will see {{ n }}  product photos from five different brands (Adidas, Gucci, Louis Vuitton, Nike, Puma), decide whether they are <strong>Genuine</strong> or <strong>Counterfeit</strong> and rate your confidence.</p>
+      <p class="task-purpose">Counterfeits can mislead shoppers, so we study whether people can make better authenticity judgments with AI than either can alone.</p>
+      <!-- <div class="study-facts"><span>{{ n }} product photos</span><span>About 6–8 minutes/trial</span></div> -->
+      <div class="label-guide" aria-label="Label definitions"><p><strong>Genuine</strong><span>Originally made by the stated brand.</span></p><p><strong>Counterfeit</strong><span>An imitation presented as that brand.</span></p></div>
+      <h2 class="small-title">What to do</h2>
+      <ol class="instruction-list">
+        <li>Inspect the photo, including the logo, stitching, materials, and overall construction.</li>
+        <li>Choose <strong>Genuine</strong> or <strong>Counterfeit</strong> and rate your confidence{% if condition == 'ai' %} to save your independent answer{% endif %}.</li>
+        {% if condition == 'ai' %}<li>Review the AI prediction, confidence, and heatmap. Keep or change your answer, rate your final confidence and trust in the AI, and select at least one reason for your decision.</li>{% endif %}
+        <li>Submit and move to the next photo.</li>
+        <li>After all {{ n }} photos, answer a short question about mental effort {% if condition == 'ai' %} and AI usefulness{% endif %} during the tasks.</li>
+        <p class="onboarding-note">If uncertain, give your best judgment and mark “I’m not sure”; you can also add a note or report an issue. Please use only the photo{% if condition == 'ai' %} and the AI assistance provided here{% endif %}, without outside searches or other AI tools.</p>
+      </ol>
+      {% if condition == 'ai' %}<div class="condition-highlight"><h2 class="small-title">What's different when using AI</h2><p>Without AI uses the photo alone. Here, <strong>after your independent answer</strong>, you also see an <strong>AI prediction, model confidence, and a Grad-CAM heatmap</strong>. The AI can be <strong>incorrect</strong> and you are the one to make the final decision.</p></div>{% endif %}
+      <div class="human-role"><h2 class="small-title">How your judgment helps</h2><p>Check product details and image context that the AI may overlook{% if condition == 'ai' %}, and whether its heatmap highlights relevant evidence{% endif %}. Use your judgment to catch mistakes{% if condition == 'ai' %} and reject misleading recommendations{% endif %}.</p></div>
+      <!-- <p class="field-help">Photos show Adidas, Gucci, Louis Vuitton, Nike, and Puma products. Instructions stay available at the top throughout the task.</p> -->
+      <!-- <button id="read-guide" class="text-button">More guidance &amp; examples →</button> -->
+    </section>
+    <section class="start-card" aria-labelledby="participant-entry-title">
+      <div class="eyebrow">STEP 2: ENTER YOUR ID &amp; BEGIN</div><h2 id="participant-entry-title">Ready to take part?</h2>
+      <div class="participant-reminder"><strong>Same person, same participant ID.</strong><p>Use exactly the same participant ID or nickname in With AI and Without AI so we can compare your responses. No full name is needed.</p></div>
+      <form id="start-form">
+        <label for="participant-code">Participant ID / nickname</label>
+        <input id="participant-code" required minlength="2" maxlength="60" autocomplete="off" placeholder="e.g., P07">
+        <!-- <p class="field-help">Use this same ID or nickname in both conditions so your responses can be compared.</p> -->
+        <label for="familiarity">How familiar are you with authenticating products? <span class="muted">(optional)</span></label>
+        <select id="familiarity"><option value="">Select a response</option><option value="1">1 · Not at all familiar</option><option value="2">2 · Slightly familiar</option><option value="3">3 · Moderately familiar</option><option value="4">4 · Very familiar</option><option value="5">5 · Extremely familiar</option></select>
+        <details class="privacy"><summary>What will be recorded?</summary><p>Your participant code, answers, confidence, task timing, attention-check attempts, and feedback are saved for this class study{% if condition == 'ai' %}, along with the AI information shown and your trust ratings{% endif %}. Taking part is voluntary. You may stop by closing the page. Saved responses remain with the researcher. No personal account is required.</p></details>
+        <label class="checkbox-line"><input type="checkbox" id="consent" required><span>I have read the instructions and data notice, and agree to take part.</span></label>
+        <button type="submit" class="button primary full">Begin study <span aria-hidden="true">→</span></button>
+      </form>
+      <!-- <div class="resume-note">Progress is saved after each step. This browser can resume the current run. You can start a separate run after finishing.</div> -->
+    </section>
+  </section>
+  <section id="attention" class="center-card" hidden>
+    <div class="eyebrow">QUICK INSTRUCTION CHECK</div><h1>Before the first photo</h1><p>What should you use to make your product judgment in this study?</p>
+    <form id="attention-form"><div class="stacked-options">
+      <label><input type="radio" name="attention" value="image_evidence" required><span>The product photo{% if condition == 'ai' %} and the AI assistance provided here{% endif %}</span></label>
+      <label><input type="radio" name="attention" value="outside_search"><span>Outside search engines or other AI tools</span></label>
+      <label><input type="radio" name="attention" value="random_guess"><span>A random answer without inspecting the photo</span></label>
+    </div><p id="attention-feedback" class="notice" hidden>Take another look: use the photo{% if condition == 'ai' %} and the assistance in this interface{% endif %}, without outside searches. You can try again.</p><button class="button primary" type="submit">Continue to photos →</button></form>
+  </section>
+  <section id="trial-workspace" hidden>
+    <div class="run-bar"><div><span class="eyebrow">YOUR STUDY RUN</span><p><strong id="code-display"></strong><span id="run-display"></span></p></div><div class="progress-area"><div class="progress-label"><span id="progress-copy"></span><span id="progress-percent"></span></div><progress id="progress" max="{{ n }}" value="0"></progress></div></div>
+    {% if condition == 'ai' %}<div class="condition-highlight compact"><strong>With AI adds a second source of evidence.</strong> First make your own judgment. Step 2 adds the AI prediction, confidence, and heatmap. You remain responsible for the final answer.</div>{% endif %}
+    <div class="trial-grid">
+      <section class="image-pane" aria-label="Product image">
+        <div class="pane-heading"><div><span class="eyebrow">PRODUCT PHOTO</span><h1 id="brand-name"></h1></div><button type="button" id="zoom-button" class="pill-button" disabled>View larger ↗</button></div>
+        <div class="image-stage"><img id="product-image" alt="Product photograph for authenticity judgment" hidden><div id="image-loading" class="loading-text">Loading product photo…</div></div>
+        <div class="image-caption"><span id="trial-position"></span><span>Inspect details. Make your own judgment.</span></div>
+        <div id="image-error" class="notice error" hidden><p id="image-error-copy">The photo could not be loaded.</p><button id="retry-images" class="text-button">Try loading again</button><button id="skip-image" class="text-button">Report problem &amp; skip this image</button></div>
+        <div id="ai-panel" class="ai-panel" hidden>
+          <div class="ai-heading"><span class="eyebrow">AI ASSISTANCE</span><span class="pill">EfficientNet-B0</span></div>
+          <div class="ai-layout"><div><p class="ai-predict-label">Model prediction</p><h2 id="ai-prediction"></h2><p class="ai-score"><strong id="ai-confidence"></strong> <span>model confidence</span></p><p class="field-help">Confidence describes the model’s support for this label. It does not guarantee correctness.</p></div><figure><img id="heatmap-image" alt="Grad-CAM overlay showing regions associated with the AI prediction"><figcaption>Grad-CAM <span class="heatmap-key" aria-hidden="true"></span><br>Cool → warm: lower → higher relative activation</figcaption></figure></div>
+          <p class="ai-explainer">Warmer regions influenced the predicted class more strongly. A highlighted region may be irrelevant; the heatmap does not prove authenticity.</p>
+        </div>
+      </section>
+      <aside class="decision-pane">
+        <div class="step-indicator"{% if condition == 'baseline' %} hidden{% endif %}><span id="step-one" class="step-dot">1</span><span class="step-line"></span><span id="step-two" class="step-dot">2</span><span id="phase-label"></span></div>
+        <div class="eyebrow" id="phase-kicker"></div><h2 id="decision-title"></h2><p id="decision-copy" class="muted"></p>
+        <div id="initial-note" class="saved-answer" hidden></div>
+        <form id="answer-form">
+          <fieldset><legend>Is this product genuine or counterfeit?</legend><div class="label-options"><label><input type="radio" name="label" value="genuine" required><span><strong>Genuine</strong></span></label><label><input type="radio" name="label" value="fake"><span><strong>Counterfeit</strong></span></label></div></fieldset>
+          <fieldset class="scale-field"><legend id="confidence-legend">How confident are you in your answer?</legend><div class="rating-row">
+            {% for i in range(1,6) %}<label><input type="radio" name="confidence" value="{{ i }}" required aria-label="Confidence {{ i }} of 5"><span>{{ i }}</span></label>{% endfor %}
+          </div><div class="scale-ends"><span>1 - Not at all confident</span><span>5 - Extremely confident</span></div></fieldset>
+          <div id="final-fields" hidden>
+            <label class="checkbox-line uncertainty"><input type="checkbox" id="uncertain"><span>I’m not sure; this is my best guess.</span></label>
+            <div id="ai-response-fields" hidden>
+              <fieldset class="scale-field"><legend>How much do you trust this AI prediction?</legend><div class="rating-row">{% for i in range(1,6) %}<label><input type="radio" name="trust" value="{{ i }}" aria-label="Trust {{ i }} of 5"><span>{{ i }}</span></label>{% endfor %}</div><div class="scale-ends"><span>1 - Not at all</span><span>5 - Completely</span></div></fieldset>
+              <fieldset class="trust-reasons"><legend>What influenced your decision? <span class="required-label">Required</span></legend><p class="field-help">Multiple selection.</p><div class="reason-list"><label><input type="checkbox" name="reason" value="relevant_regions"> Heatmap focused on useful details</label><label><input type="checkbox" name="reason" value="irrelevant_regions"> Heatmap focused on irrelevant areas</label><label><input type="checkbox" name="reason" value="confidence"> AI confidence score</label><label><input type="checkbox" name="reason" value="visual_details"> Product details in the photo</label><label><input type="checkbox" name="reason" value="own_knowledge"> My own knowledge</label><label><input type="checkbox" name="reason" value="unclear_image"> Photo was unclear</label><label><input type="checkbox" id="unchanged-reason" name="reason" value="unchanged_answer"> I didn’t change my answer</label></div><p id="reason-help" class="field-help">The unchanged-answer option applies when you keep your independent answer.</p></fieldset>
+            </div>
+            <section class="comment-block"><label for="trial-comment">Add a note / report an issue <span class="muted">(optional)</span></label><p class="field-help">Tell us about details that guided your decision, an unclear image, or a problem with the task.</p><textarea id="trial-comment" rows="5" maxlength="2000" placeholder="Write your observation, explanation, or issue here…"></textarea></section>
+          </div>
+          <button class="button primary full" id="answer-button" type="submit" disabled>Save your answer →</button>
+          <p id="save-hint" class="field-help centered"></p>
+        </form>
+      </aside>
+    </div>
+  </section>
+  <section id="survey" class="center-card survey-card" hidden><div class="eyebrow">ONE LAST STEP</div><h1>How did this process feel?</h1><p>Your photo judgments are saved. Complete these short questions to finish this run.</p>
+    <form id="survey-form"><fieldset class="scale-field"><legend>How much mental effort did this task require?</legend><div class="rating-row seven">{% for i in range(1,8) %}<label><input type="radio" name="workload" value="{{ i }}" required aria-label="Mental effort {{ i }} of 7"><span>{{ i }}</span></label>{% endfor %}</div><div class="scale-ends"><span>1 · Very little effort</span><span>7 · Very high effort</span></div></fieldset>
+      {% if condition == 'ai' %}<fieldset class="scale-field"><legend>How useful was the AI assistance overall?</legend><div class="rating-row seven">{% for i in range(1,8) %}<label><input type="radio" name="usefulness" value="{{ i }}" required aria-label="AI usefulness {{ i }} of 7"><span>{{ i }}</span></label>{% endfor %}</div><div class="scale-ends"><span>1 · Not at all useful</span><span>7 · Extremely useful</span></div></fieldset>{% endif %}
+      <label for="feedback">Anything you’d like to share? <span class="muted">(optional)</span></label><p class="field-help">If you have tried both conditions, compare your experiences. What helped, what was difficult, or what did you like or dislike?</p><textarea id="feedback" rows="4" maxlength="4000" placeholder="Your experience…"></textarea><button type="submit" class="button primary full">Finish study run →</button>
+    </form>
+  </section>
+  <section id="complete" class="center-card complete-card" hidden><div class="completion-mark" aria-hidden="true">✓</div><div class="eyebrow">STUDY RUN COMPLETE</div><h1>Thank you for looking closely.</h1><p id="complete-copy"></p><p class="muted">Your responses and feedback have been saved. For the other condition, use the same participant ID: <strong id="completion-participant"></strong>.</p><a class="button primary full" href="{{ '/without-ai' if condition == 'ai' else '/with-ai' }}">Open the {{ 'without-AI' if condition == 'ai' else 'with-AI' }} condition →</a><p class="field-help">Follow the class schedule for when to switch conditions.</p><div class="another-run-choice"><h2>Would you like to start a new run?</h2><p>A new run keeps this run’s responses and creates a separate record under the same participant ID.</p><button id="new-run" class="button secondary full">Yes, start another run in this condition</button><a class="text-button" href="/">No, return to study entry</a></div></section>
+  <div id="recovery" class="center-card" hidden><h1>Your session needs attention</h1><p>Retry the connection to resume your saved work, or start a separate run. Earlier responses will remain saved.</p><button id="retry-session" class="button primary">Retry connection</button><button id="reset-session" class="text-button">Start a separate run</button></div>
+</main>
+<dialog id="instructions-dialog" class="guide-dialog">
+  <div class="dialog-top"><span class="eyebrow">TASK GUIDE</span><button class="pill-button" id="close-guide" aria-label="Close instructions">Close ×</button></div>
+  <h2>Look. Decide.{% if condition == 'ai' %} Consider the AI.{% endif %}</h2>
+  <p>Choose whether the photographed product is <strong>Genuine</strong> (made by the stated brand) or <strong>Counterfeit</strong> (an imitation presented as that brand).</p>
+  <div class="participant-reminder"><strong>Use the same participant ID or nickname in both conditions.</strong><p>A code or nickname is enough; no full name is needed.</p></div>
+  <div class="human-role"><h3>How humans can help</h3><p>Use your understanding of logos, materials, stitching, and context to check evidence and spot AI mistakes. In With AI, decide whether the heatmap focuses on useful product details or irrelevant regions, and override a misleading recommendation when appropriate. Your judgments and notes help researchers evaluate human–AI collaboration. The model is fixed and does not retrain during the task.</p></div>
+  {% if condition == 'ai' %}<div class="condition-highlight"><strong>What With AI adds:</strong> after your independent answer, you receive the model prediction, confidence, and heatmap. Then give a final answer, trust rating, and at least one reason for your trust or decision. Without AI has no model outputs or trust questions.</div>{% endif %}
+  <div class="guide-definitions"><div><h3>Genuine</h3><p>A product manufactured by the stated brand. Consistent logos, stitching, and materials may support this judgment.</p></div><div><h3>Counterfeit</h3><p>A product imitating the stated brand. Unusual logo shape, inconsistent construction, or poor finishing may be clues.</p></div></div>
+  <p><strong>Example:</strong> An uneven seam or distorted wordmark may suggest a counterfeit. A clean logo alone is not proof of a genuine product. These clues are imperfect; judge all visible evidence together.</p>
+  <ol class="instruction-list">
+    <li>Inspect each photo and choose your answer and confidence.</li>
+    {% if condition == 'ai' %}
+    <li>Save your independent answer to see the AI label, calibrated confidence, and Grad-CAM heatmap. Warm areas contributed more strongly to the prediction. The AI can be wrong even with high confidence, and its heatmap may focus on irrelevant areas.</li>
+    <li>Keep or change your answer. Rate final confidence and trust in this AI recommendation, and select at least one trust or decision reason, then submit. You can change selections before saving each step. Saved independent answers stay fixed so we can measure changes.</li>
+    {% else %}
+    <li>Submit once to save your answer and confidence and move directly to the next photo. After the last photo, answer the mental-effort question.</li>
+    {% endif %}
+    <li>If uncertain, give your best binary judgment and use the “I’m not sure” option. Add an optional note for ambiguity or image issues.</li>
+  </ol>
+  <p class="muted">Do not use outside searches or other AI tools. No correctness feedback is given during the study. Labels are dataset reference labels and may be imperfect. The images are for a class research task.</p>
+  <p class="field-help">Keyboard: press 1 for Genuine or 2 for Counterfeit when you are not typing in a field. Use Tab and arrow keys for other controls.</p>
+</dialog>
+<dialog id="zoom-dialog" class="zoom-dialog"><div class="dialog-top"><span class="eyebrow">PRODUCT PHOTO · LARGER VIEW</span><button id="close-zoom" class="pill-button">Close ×</button></div><img id="zoom-image" alt="Larger view of the current product photograph"></dialog>
+{% endblock %}

@@ -1,0 +1,20 @@
+# For a future repository whose root is this folder. See README for monorepos.
+services:
+  - type: web
+    name: product-inspector-a3
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: flask --app app:create_app init-db && gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 2 --timeout 60 wsgi:app
+    healthCheckPath: /healthz
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: DATABASE_URL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: TRUST_RENDER_PROXY
+        value: 1
+      - key: TRIALS_PER_SESSION
+        value: 10
